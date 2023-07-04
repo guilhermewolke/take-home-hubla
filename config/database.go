@@ -3,6 +3,7 @@ package config
 import (
 	"database/sql"
 	"fmt"
+	"log"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -13,8 +14,8 @@ func DBConnect() (*sql.DB, error) {
 	host := getEnvValue("MYSQL_HOST")
 	port := getEnvValue("MYSQL_PORT")
 	database := getEnvValue("MYSQL_DATABASE")
-
 	connString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", user, password, host, port, database)
+	log.Println(connString)
 	db, err := sql.Open("mysql", connString)
 	if err != nil {
 		return nil, err

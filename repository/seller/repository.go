@@ -2,18 +2,10 @@ package sellerDB
 
 import (
 	"database/sql"
-
-	"github.com/guilhermewolke/take-home/config"
 )
 
-func NewSellerDB() (*SellerDB, error) {
-	db, err := config.DBConnect()
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &SellerDB{DB: db}, nil
+func NewSellerDB(db *sql.DB) *SellerDB {
+	return &SellerDB{DB: db}
 }
 
 func (s *SellerDB) GetSellerByName(name string) (*SellerDBOutputDTO, error) {
@@ -42,7 +34,9 @@ func (s *SellerDB) findByName(name string) (int64, error) {
 	err := s.DB.QueryRow(`SELECT id FROM seller WHERE name = ? LIMIT 1`, name).Scan(&id)
 
 	if err != nil {
-		return 0, err
+		if err != sql.ErrNoRows {
+			return 0, err
+		}
 	}
 
 	return id.Int64, nil
