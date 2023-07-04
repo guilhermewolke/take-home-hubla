@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/guilhermewolke/take-home/config"
 	"github.com/guilhermewolke/take-home/internal/upload"
 )
 
@@ -13,6 +14,15 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		w.Write([]byte("Invalid method"))
 	}
+
+	db, err := config.DBConnect()
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(fmt.Sprintf("Error on connecting to database: %s", err)))
+	}
+
+	defer db.Close()
 	//Receiving the file...
 	file, _, err := r.FormFile("file")
 
@@ -31,7 +41,7 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for scanner.Scan() {
-		if err = upload.ProcessLine(scanner.Text()); err != nil {
+		if err = upload.ProcessLine(db, scanner.Text()); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(fmt.Sprintf("Error on reading the file lines: %s", err)))
 		}

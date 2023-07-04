@@ -32,9 +32,9 @@ func ProcessLine(db *sql.DB, line string) error {
 
 // 	sellerName := line[67:]
 // 	// Filling entities with extracted data
-// 	s := seller.NewSeller(db, 0, sellerName)
-// 	p := product.NewProduct(db, 0, productName, s.ID, s.ID)
-// 	t, errs := transaction.NewTransaction(db, 0, s.ID, transaction.TransactionType(transaction_type), date, p.ID, amount)
+// 	s := seller.NewSeller(db, sellerName)
+// 	p := product.NewProduct(db, productName, s.ID)
+// 	t, errs := transaction.NewTransaction(db, s.ID, transaction.TransactionType(transaction_type), date, p.ID, amount)
 
 // 	if len(errs) > 0 {
 // 		errorMsgs := make([]string, len(errs))
