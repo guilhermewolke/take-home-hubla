@@ -22,12 +22,27 @@ services:
     restart: always
     tty: true
     volumes:
-      - ./mysql:/var/lib/mysql
+    #  - ./mysql:/var/lib/mysql
+      - ./docker/provision/mysql/init:/docker-entrypoint-initdb.d
     environment:
-      - MYSQL_DATABASE=take_home
+#      - MYSQL_DATABASE=take_home
       - MYSQL_ROOT_PASSWORD=root
     networks:
       - app-network
+
+  # mysql_test:
+  #   image: mysql:5.7
+  #   command: --innodb-use-native-aio=0
+  #   container_name: mysql_test
+  #   restart: always
+  #   tty: true
+  #   volumes:
+  #     - ./mysql_test:/var/lib/mysql
+  #   environment:
+  #     - MYSQL_DATABASE=take_home_test
+  #     - MYSQL_ROOT_PASSWORD=root
+  #   networks:
+  #     - app-network
 
 networks:
   app-network:

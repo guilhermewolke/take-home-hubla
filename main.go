@@ -1,31 +1,38 @@
 package main
 
 import (
-	"context"
 	"fmt"
+	"html/template"
 	"net/http"
 
 	"github.com/guilhermewolke/take-home/cmd/database"
+	"github.com/guilhermewolke/take-home/handlers"
 )
 
 func main() {
-	mux := http.NewServeMux()
+	http.HandleFunc("/setup-database", setup)
+	http.HandleFunc("/upload", handlers.Upload)
+	http.HandleFunc("/", index)
 
-	mux.HandleFunc("/", index)
-	mux.HandleFunc("/setup-database", setup)
-
-	http.ListenAndServe(":8080", mux)
+	http.ListenAndServe(":8080", nil)
 }
 
 func setup(w http.ResponseWriter, r *http.Request) {
-	c := context.Background()
-	if err := database.Setup(c); err != nil {
-		panic(err)
+	if err := database.Setup(false); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(fmt.Sprintf("Erro ao rodar o setup: %s", err)))
+		return
 	}
-	w.WriteHeader(200)
+	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Tabelas criadas com sucesso!"))
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hellow ord")
+	t := template.Must(template.New("index.html").ParseFiles("web/index.html"))
+	err := t.Execute(w, nil)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(fmt.Sprintf("Erro ao carregar a página inicial: %s", err)))
+		return
+	}
 }
