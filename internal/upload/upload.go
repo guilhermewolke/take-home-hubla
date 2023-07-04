@@ -1,6 +1,8 @@
 package upload
 
-func ProcessLine(line string) error {
+import "database/sql"
+
+func ProcessLine(db *sql.DB, line string) error {
 	//Extract entities info by reading the file line
 	//product, seller, transaction, err := FillEntities(line)
 
@@ -8,7 +10,7 @@ func ProcessLine(line string) error {
 	return nil
 }
 
-// func FillEntities(line string) (*product.Product, *seller.Seller, *transaction.Transaction, error) {
+// func FillEntities(db *sql.DB, line string) (*product.Product, *seller.Seller, *transaction.Transaction, error) {
 // 	transaction_type, err := strconv.Atoi(line[0:1])
 // 	if err != nil {
 // 		return nil, nil, nil, err
@@ -30,9 +32,9 @@ func ProcessLine(line string) error {
 
 // 	sellerName := line[67:]
 // 	// Filling entities with extracted data
-// 	s := seller.NewSeller(0, sellerName)
-// 	p := product.NewProduct(0, productName, s.ID, s.ID)
-// 	t, errs := transaction.NewTransaction(0, s.ID, transaction.TransactionType(transaction_type), date, p.ID, amount)
+// 	s := seller.NewSeller(db, 0, sellerName)
+// 	p := product.NewProduct(db, 0, productName, s.ID, s.ID)
+// 	t, errs := transaction.NewTransaction(db, 0, s.ID, transaction.TransactionType(transaction_type), date, p.ID, amount)
 
 // 	if len(errs) > 0 {
 // 		errorMsgs := make([]string, len(errs))

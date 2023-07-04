@@ -25,7 +25,7 @@ func setUp(t *testing.T) {
 }
 
 func tearDown(t *testing.T) {
-	err := database.TearDown(true)
+	err := database.TearDown(db)
 	if err != nil {
 		t.Fatal(err)
 	}

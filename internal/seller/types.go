@@ -1,24 +1,26 @@
 package seller
 
+import (
+	"database/sql"
+
+	sellerDB "github.com/guilhermewolke/take-home/repository/seller"
+)
+
 type Seller struct {
 	ID   int64
 	Name string
 }
 
-// func NewSeller(id int64, name string) (*Seller, error) {
-// 	sdb, err := sellerDB.NewSellerDB()
+func NewSeller(db *sql.DB, name string) (*Seller, error) {
+	sdb := sellerDB.NewSellerDB(db)
 
-// 	if err != nil {
-// 		return nil, err
-// 	}
+	s, err := sdb.GetSellerByName(name)
 
-// 	s, err := sdb.GetSellerByName(name)
+	if err != nil {
+		return nil, err
+	}
 
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return &Seller{
-// 		ID:   s.ID,
-// 		Name: s.Name}, nil
-// }
+	return &Seller{
+		ID:   s.ID,
+		Name: s.Name}, nil
+}

@@ -1,22 +1,14 @@
 package database
 
-import "github.com/guilhermewolke/take-home/config"
+import (
+	"database/sql"
+)
 
-func TearDown(test bool) error {
-	db, err := config.DBConnect()
-
-	if test {
-		db, err = config.DBConnectTest()
-	}
-
-	if err != nil {
-		return err
-	}
-
+func TearDown(db *sql.DB) error {
 	defer db.Close()
 
 	//Truncating tables: transactions
-	_, err = db.Exec(`TRUNCATE TABLE transaction;`)
+	_, err := db.Exec(`TRUNCATE TABLE transaction;`)
 
 	if err != nil {
 		return err
