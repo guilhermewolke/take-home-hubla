@@ -1,22 +1,28 @@
 package product
 
+import (
+	"database/sql"
+
+	productDB "github.com/guilhermewolke/take-home/repository/product"
+)
+
 type Product struct {
 	ID         int64
 	Name       string
 	ProducerID int64
-	SellerID   int64
 }
 
-// func NewProduct(id int64, name string, producer_id, seller_id int64) *Product {
-// 	p := &Product{
-// 		Name:       name,
-// 		ProducerID: producer_id,
-// 		SellerID:   seller_id}
+func NewProduct(db *sql.DB, name string, producer_id int64) (*Product, error) {
+	pdb := productDB.NewProductDB(db)
 
-// 	p.ID = id
-// 	if p.ID == 0 {
-// 		p
-// 	}
+	p, err := pdb.GetProduct(name, producer_id)
 
-// 	return p
-// }
+	if err != nil {
+		return nil, err
+	}
+
+	return &Product{
+		ID:         p.ID,
+		Name:       p.Name,
+		ProducerID: p.ProducerID}, nil
+}

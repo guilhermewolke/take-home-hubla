@@ -1,7 +1,9 @@
 package transaction
 
 import (
+	"errors"
 	"fmt"
+	"math"
 	"time"
 )
 
@@ -17,6 +19,7 @@ const (
 	//Validation message errors
 	ErrInvalidID              = "The field '%s' must be greater than 0, but is '%d'."
 	ErrInvalidTransactionType = "The transaction type '%d' is invalid."
+	ErrZeroedAmount           = "The amount value cannot be '0.0'"
 )
 
 type Transaction struct {
@@ -28,26 +31,25 @@ type Transaction struct {
 	Amount    float64
 }
 
-func NewTransaction(id, seller_id int64, transaction_type TransactionType, date time.Time, product_id int64, amount float64) (*Transaction, []error) {
+func NewTransaction(seller_id int64, transaction_type TransactionType, date time.Time, product_id int64, amount float64) (*Transaction, []error) {
 	transaction := &Transaction{
-		ID:        id,
 		SellerID:  seller_id,
 		Type:      transaction_type,
 		Date:      date,
 		ProductID: product_id,
 		Amount:    amount}
-	if err := transaction.valid(); err != nil {
-		return nil, err
+	if errs := transaction.valid(); len(errs) > 0 {
+		return nil, errs
 	}
 	return transaction, nil
 }
 
 func (t *Transaction) valid() []error {
-	errors := make([]error, 0)
+	errs := make([]error, 0)
 
 	// Validating SellerID
-	if t.SellerID == 0 {
-		errors = append(errors, fmt.Errorf(ErrInvalidID, "seller id", t.SellerID))
+	if t.SellerID <= 0 {
+		errs = append(errs, fmt.Errorf(ErrInvalidID, "seller_id", t.SellerID))
 	}
 
 	//Validating Transaction Type
@@ -61,8 +63,24 @@ func (t *Transaction) valid() []error {
 	}
 
 	if !exists {
-		errors = append(errors, fmt.Errorf(ErrInvalidTransactionType, int(t.SellerID)))
+		errs = append(errs, fmt.Errorf(ErrInvalidTransactionType, int(t.Type)))
 	}
 
-	return errors
+	//Validating Amount
+
+	if t.Amount == 0 {
+		errs = append(errs, errors.New(ErrZeroedAmount))
+	}
+
+	// Forcing amount to be negative if transaction type were 3
+	if t.Type == OUTGOING_COMMISSION && t.Amount > 0 {
+		t.Amount *= -1
+	}
+
+	// Forcing amount to be negative if transaction type were 3
+	if t.Type != OUTGOING_COMMISSION && t.Amount < 0 {
+		t.Amount = math.Abs(t.Amount)
+	}
+
+	return errs
 }
