@@ -6,28 +6,28 @@ func NewProductDB(db *sql.DB) *ProductDB {
 	return &ProductDB{DB: db}
 }
 
-func (p *ProductDB) GetProduct(name string, producerID int64) (*ProductDBOutputDTO, error) {
-	id, err := p.findByNameAndProducerID(name, producerID)
+func (p *ProductDB) GetProduct(name string) (*ProductDBOutputDTO, error) {
+	id, err := p.findByName(name)
 
 	if err != nil {
 		return nil, err
 	}
 
 	if id == 0 {
-		id, err = p.create(name, producerID)
+		id, err = p.create(name)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	return &ProductDBOutputDTO{ID: id, Name: name, ProducerID: producerID}, nil
+	return &ProductDBOutputDTO{ID: id, Name: name}, nil
 }
 
-func (p *ProductDB) findByNameAndProducerID(name string, producerID int64) (int64, error) {
+func (p *ProductDB) findByName(name string) (int64, error) {
 	var (
 		id sql.NullInt64
 	)
-	err := p.DB.QueryRow(`SELECT id FROM products WHERE name = ? AND producer_id = ?`, name, producerID).Scan(&id)
+	err := p.DB.QueryRow(`SELECT id FROM products WHERE name = ?`, name).Scan(&id)
 
 	if err != nil {
 		if err != sql.ErrNoRows {
@@ -38,8 +38,8 @@ func (p *ProductDB) findByNameAndProducerID(name string, producerID int64) (int6
 	return id.Int64, nil
 }
 
-func (p *ProductDB) create(name string, producerID int64) (int64, error) {
-	rs, err := p.DB.Exec(`INSERT INTO products (name, producer_id) VALUES (?, ?);`, name, producerID)
+func (p *ProductDB) create(name string) (int64, error) {
+	rs, err := p.DB.Exec(`INSERT INTO products (name) VALUES (?);`, name)
 
 	if err != nil {
 		return 0, err

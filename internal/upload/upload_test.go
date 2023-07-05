@@ -46,8 +46,6 @@ func TestFillEntities(test *testing.T) {
 	assert.NotNil(test, p)
 	assert.NotNil(test, p.ID)
 	assert.Greater(test, p.ID, int64(0))
-	assert.NotNil(test, p.ProducerID)
-	assert.Greater(test, p.ProducerID, int64(0))
 	assert.Equal(test, "CURSO DE BEM-ESTAR", p.Name)
 	//Comparing transaction
 	assert.NotNil(test, t)
@@ -87,11 +85,11 @@ func TestProcessLine(test *testing.T) {
 
 	//Comparing the saved product
 	var (
-		productID, productProducerID sql.NullInt64
-		productName                  sql.NullString
+		productID   sql.NullInt64
+		productName sql.NullString
 	)
 
-	err = db.QueryRow(`SELECT id, producer_id, name FROM products WHERE name = ?`, "CURSO DE BEM-ESTAR").Scan(&productID, &productProducerID, &productName)
+	err = db.QueryRow(`SELECT id, name FROM products WHERE name = ?`, "CURSO DE BEM-ESTAR").Scan(&productID, &productName)
 
 	if err != nil {
 		test.Fatal(err)
@@ -99,8 +97,6 @@ func TestProcessLine(test *testing.T) {
 
 	assert.NotNil(test, productID.Int64)
 	assert.Greater(test, productID.Int64, int64(0))
-	assert.NotNil(test, productProducerID.Int64)
-	assert.Equal(test, sellerID.Int64, productProducerID.Int64)
 	assert.Equal(test, "CURSO DE BEM-ESTAR", productName.String)
 
 	//Comparing the saved transaction

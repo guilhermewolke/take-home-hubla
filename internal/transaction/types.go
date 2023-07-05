@@ -3,6 +3,7 @@ package transaction
 import (
 	"errors"
 	"fmt"
+	"log"
 	"math"
 	"time"
 )
@@ -54,13 +55,23 @@ func (t *Transaction) valid() []error {
 
 	//Validating Transaction Type
 	exists := false
+	log.Printf("transaction.valid - PRODUCTOR_SELLING: %#v", PRODUCTOR_SELLING)
+	log.Printf("transaction.valid - AFFILIATE_SELLING: %#v", AFFILIATE_SELLING)
+	log.Printf("transaction.valid - OUTGOING_COMMISSION: %#v", OUTGOING_COMMISSION)
+	log.Printf("transaction.valid - INCOMING_COMMISSION: %#v", INCOMING_COMMISSION)
+	log.Printf("transaction.valid - int(t.Type): %#v", int(t.Type))
+	log.Printf("transaction.valid - t.Type: %#v", t.Type)
 
-	for transactionType := range []TransactionType{PRODUCTOR_SELLING, AFFILIATE_SELLING, OUTGOING_COMMISSION, INCOMING_COMMISSION} {
-		if int(t.Type) == transactionType {
+	for _, transactionType := range []TransactionType{PRODUCTOR_SELLING, AFFILIATE_SELLING, OUTGOING_COMMISSION, INCOMING_COMMISSION} {
+		log.Printf("transaction.valid - transactionType dentro do loop: %#v", transactionType)
+		log.Printf("transaction.valid - int(t.Type) == transactionType: %#v", (t.Type == transactionType))
+		if t.Type == transactionType {
 			exists = true
 			break
 		}
 	}
+
+	log.Printf("transaction.valid - exists: %#v", exists)
 
 	if !exists {
 		errs = append(errs, fmt.Errorf(ErrInvalidTransactionType, int(t.Type)))
@@ -77,7 +88,7 @@ func (t *Transaction) valid() []error {
 		t.Amount *= -1
 	}
 
-	// Forcing amount to be negative if transaction type were 3
+	// Forcing amount to be positive if transaction type were diferent3
 	if t.Type != OUTGOING_COMMISSION && t.Amount < 0 {
 		t.Amount = math.Abs(t.Amount)
 	}

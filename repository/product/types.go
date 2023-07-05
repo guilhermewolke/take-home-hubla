@@ -7,7 +7,6 @@ type ProductDB struct {
 }
 
 type ProductDBOutputDTO struct {
-	ID         int64
-	ProducerID int64
-	Name       string
+	ID   int64
+	Name string
 }

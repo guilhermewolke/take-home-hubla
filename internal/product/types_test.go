@@ -36,7 +36,7 @@ func tearDown(t *testing.T) {
 
 func TestNewProduct(t *testing.T) {
 	setUp(t)
-	p, err := NewProduct(db, "Product 1", int64(1))
+	p, err := NewProduct(db, "Product 1")
 	assert.Nil(t, err)
 	assert.NotNil(t, p)
 	assert.NotNil(t, p.ID)
