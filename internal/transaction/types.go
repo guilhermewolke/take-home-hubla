@@ -1,9 +1,7 @@
 package transaction
 
 import (
-	"errors"
 	"fmt"
-	"log"
 	"math"
 	"time"
 )
@@ -18,9 +16,9 @@ const (
 	INCOMING_COMMISSION                            // Type 4
 
 	//Validation message errors
-	ErrInvalidID              = "The field '%s' must be greater than 0, but is '%d'."
-	ErrInvalidTransactionType = "The transaction type '%d' is invalid."
-	ErrZeroedAmount           = "The amount value cannot be '0.0'"
+	ErrInvalidID              = "The field '%s' must be greater than 0, but is '%d' at line '%d'."
+	ErrInvalidTransactionType = "The transaction type '%d' is invalid at line '%d'."
+	ErrZeroedAmount           = "The amount value cannot be '0.0' at line '%d'"
 )
 
 type Transaction struct {
@@ -32,55 +30,45 @@ type Transaction struct {
 	Amount    float64
 }
 
-func NewTransaction(seller_id int64, transaction_type TransactionType, date time.Time, product_id int64, amount float64) (*Transaction, []error) {
+func NewTransaction(seller_id int64, transaction_type TransactionType, date time.Time, product_id int64, amount float64, lineNumber int) (*Transaction, []error) {
 	transaction := &Transaction{
 		SellerID:  seller_id,
 		Type:      transaction_type,
 		Date:      date,
 		ProductID: product_id,
 		Amount:    amount}
-	if errs := transaction.valid(); len(errs) > 0 {
+	if errs := transaction.valid(lineNumber); len(errs) > 0 {
 		return nil, errs
 	}
 	return transaction, nil
 }
 
-func (t *Transaction) valid() []error {
+func (t *Transaction) valid(lineNumber int) []error {
 	errs := make([]error, 0)
 
 	// Validating SellerID
 	if t.SellerID <= 0 {
-		errs = append(errs, fmt.Errorf(ErrInvalidID, "seller_id", t.SellerID))
+		errs = append(errs, fmt.Errorf(ErrInvalidID, "seller_id", t.SellerID, lineNumber))
 	}
 
 	//Validating Transaction Type
 	exists := false
-	log.Printf("transaction.valid - PRODUCTOR_SELLING: %#v", PRODUCTOR_SELLING)
-	log.Printf("transaction.valid - AFFILIATE_SELLING: %#v", AFFILIATE_SELLING)
-	log.Printf("transaction.valid - OUTGOING_COMMISSION: %#v", OUTGOING_COMMISSION)
-	log.Printf("transaction.valid - INCOMING_COMMISSION: %#v", INCOMING_COMMISSION)
-	log.Printf("transaction.valid - int(t.Type): %#v", int(t.Type))
-	log.Printf("transaction.valid - t.Type: %#v", t.Type)
 
 	for _, transactionType := range []TransactionType{PRODUCTOR_SELLING, AFFILIATE_SELLING, OUTGOING_COMMISSION, INCOMING_COMMISSION} {
-		log.Printf("transaction.valid - transactionType dentro do loop: %#v", transactionType)
-		log.Printf("transaction.valid - int(t.Type) == transactionType: %#v", (t.Type == transactionType))
 		if t.Type == transactionType {
 			exists = true
 			break
 		}
 	}
 
-	log.Printf("transaction.valid - exists: %#v", exists)
-
 	if !exists {
-		errs = append(errs, fmt.Errorf(ErrInvalidTransactionType, int(t.Type)))
+		errs = append(errs, fmt.Errorf(ErrInvalidTransactionType, int(t.Type), lineNumber))
 	}
 
 	//Validating Amount
 
 	if t.Amount == 0 {
-		errs = append(errs, errors.New(ErrZeroedAmount))
+		errs = append(errs, fmt.Errorf(ErrZeroedAmount, lineNumber))
 	}
 
 	// Forcing amount to be negative if transaction type were 3

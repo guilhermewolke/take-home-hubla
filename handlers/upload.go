@@ -53,15 +53,17 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//Processing line by line...
+	var lineCount int = 1
 	for scanner.Scan() {
 		log.Printf("handlers.Upload - processando linha do arquivo: '%s'", scanner.Text())
-		if err = upload.ProcessLine(db, scanner.Text()); err != nil {
+		if err = upload.ProcessLine(db, scanner.Text(), lineCount); err != nil {
 			log.Printf("handlers.Upload - Erro ao ler as linhas do arquivo: %s", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(fmt.Sprintf("Error on reading the file lines")))
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(fmt.Sprintf("Ocorreram os seguintes erros ao processar este arquivo: %s", err)))
 			return
 		}
-		log.Printf("handlers.Upload - linha processada com sucesso!")
+		log.Printf("handlers.Upload - linha %d processada com sucesso!", lineCount)
+		lineCount++
 	}
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Upload finished with success!"))

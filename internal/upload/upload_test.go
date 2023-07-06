@@ -34,7 +34,7 @@ func tearDown(t *testing.T) {
 func TestFillEntities(test *testing.T) {
 	setUp(test)
 	testLine := `12022-01-15T19:20:30-03:00CURSO DE BEM-ESTAR            0000012750JOSE CARLOS`
-	p, s, t, err := FillEntities(db, testLine)
+	p, s, t, err := FillEntities(db, testLine, 1)
 
 	assert.Nil(test, err)
 	//Comparing seller
@@ -64,7 +64,7 @@ func TestProcessLine(test *testing.T) {
 	setUp(test)
 
 	testLine := `12022-01-15T19:20:30-03:00CURSO DE BEM-ESTAR            0000012750JOSE CARLOS`
-	err := ProcessLine(db, testLine)
+	err := ProcessLine(db, testLine, 1)
 	assert.Nil(test, err)
 
 	//Comparing the saved seller
