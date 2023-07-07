@@ -12,6 +12,7 @@ type Product struct {
 	Name string
 }
 
+// Prepara e retorna um objeto do tipo Product.
 func NewProduct(db *sql.DB, name string) (*Product, error) {
 	log.Printf("product.NewProduct - Início do método")
 	pdb := productDB.NewProductDB(db)

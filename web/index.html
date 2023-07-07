@@ -1,15 +1,73 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Take home</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
 </head>
 <body>
-    <h1>Take Home</h1>
-    <form enctype="multipart/form-data" action="/upload" method="post">
-        Arquivo: <input type="file" name="file" id="file" />
-        <input type="submit" name="submit" value="Enviar" />
-    </form>
+    <div class="container">
+        <h1>Take Home</h1>
+        {{ if eq .status "[success]" }}
+            <div class="alert alert-success">
+                {{ .message }}
+            </div>
+        {{ end }}
+        {{ if eq .status "[failure]" }}
+            <div class="alert alert-danger">
+                {{ .message }}
+            </div>
+        {{ end }}
+        {{ if eq .errorMsg "" }}
+            <div class="alert alert-danger">
+                {{ .errorMsg }}
+            </div>
+        {{ end }}
+        
+        <form enctype="multipart/form-data" action="/upload" method="post">
+            <div class="mb-3">
+                <label for="file" class="form-label">Arquivo:</label>
+                <input type="file" name="file" id="file" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <input type="submit" name="submit" value="Enviar" class="btn btn-primary" />
+            </div>
+        </form>
+    
+        <div class="transactions-list">
+            <h2>Transações</h2>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <td>#ID</td>
+                        <td>Produto</td>
+                        <td>Vendedor</td>
+                        <td>Tipo do lançamento</td>
+                        <td>Valor (em R$)</td>
+                        <td>Data</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{ if .transactions}}
+                        {{ range .transactions }}
+                            <tr>
+                                <td>{{ .ID }}</td>
+                                <td>{{ .Product }}</td>
+                                <td>{{ .Seller }}</td>
+                                <td>{{ .Type }}</td>
+                                <td>{{ .Amount }}</td>
+                                <td>{{ .Date }}</td>
+                            </tr>
+                        {{ end }}
+                    {{ else }}
+                        <tr>
+                            <td colspan="6">Nenhuma transação cadastrada ainda</td>
+                        </tr>
+                    {{ end }}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </body>
 </html>

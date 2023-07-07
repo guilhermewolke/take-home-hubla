@@ -14,6 +14,15 @@ import (
 	transactionDB "github.com/guilhermewolke/take-home/repository/transaction"
 )
 
+/*
+Recebe uma linha e o número desta linha no arquivo de importação.
+
+Ações Executadas:
+  - Extrair as informações do produto, vendedor e transação da linha
+  - Salvar no Banco de dados
+
+Em caso de erro, uma mensagem de erro com o número da linha no arquivo será retornada.
+*/
 func ProcessLine(db *sql.DB, line string, lineNumber int) error {
 	log.Println("upload.ProcessLine - Início do método")
 	//Extract entities info by reading the file line
@@ -38,6 +47,7 @@ func ProcessLine(db *sql.DB, line string, lineNumber int) error {
 	return err
 }
 
+// Extrai do texto presente na linha do arquivo as informações necessárias para hidratar os objetos de produto, vendedor e transação
 func FillEntities(db *sql.DB, line string, lineNumber int) (*product.Product, *seller.Seller, *transaction.Transaction, error) {
 	log.Printf("upload.FillEntities - Início do método")
 	transaction_type, err := strconv.Atoi(line[0:1])

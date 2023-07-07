@@ -30,6 +30,18 @@ type Transaction struct {
 	Amount    float64
 }
 
+type ListTransactionOutputDTO []TransactionOutputDTO
+
+type TransactionOutputDTO struct {
+	ID      int64
+	Seller  string
+	Product string
+	Type    string
+	Date    string
+	Amount  float64
+}
+
+// Prepara e retorna um objeto do tipo Transaction, além de retornar um slice de erros encontrados na validação.
 func NewTransaction(seller_id int64, transaction_type TransactionType, date time.Time, product_id int64, amount float64, lineNumber int) (*Transaction, []error) {
 	transaction := &Transaction{
 		SellerID:  seller_id,
@@ -43,6 +55,17 @@ func NewTransaction(seller_id int64, transaction_type TransactionType, date time
 	return transaction, nil
 }
 
+/*
+valid valida as informações passadas ao objeto Transaction, e em caso de inconsistências. Retorna um slice com erros encontrados durante a validação.
+
+Validações/ações executadas:
+
+  - O SellerID (ID do vendedor) tem que ser maior que zero
+  - O TransactionType (Tipo de transação) tem que ser um dos 4 possíveis
+  - O Amount (valor da transação) não pode ser zero
+  - Se o TransactionType for 3 (Comissão paga), a validação garante que o valor de amount seja negativo
+  - Se o TransactionType for diferente de 3 (Comissão paga), a validação garante que o valor de amount seja positivo
+*/
 func (t *Transaction) valid(lineNumber int) []error {
 	errs := make([]error, 0)
 

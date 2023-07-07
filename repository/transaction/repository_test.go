@@ -83,3 +83,113 @@ func TestSave(t *testing.T) {
 
 	tearDown(t)
 }
+
+func TestListTransactions(t *testing.T) {
+	setUp(t)
+	prepareDataBase(t, db)
+
+	expected := make(map[int64]TransactionDBOutputDTO, 0)
+
+	expected[int64(1)] = TransactionDBOutputDTO{
+		ID:      int64(1),
+		Seller:  "JOSE CARLOS",
+		Product: "CURSO DE BEM-ESTAR",
+		Amount:  "127,50",
+		Type:    "Venda produtor",
+		Date:    "15/01/2022 19:20:30"}
+
+	expected[int64(2)] = TransactionDBOutputDTO{
+		ID:      int64(2),
+		Seller:  "THIAGO OLIVEIRA",
+		Product: "CURSO DE BEM-ESTAR",
+		Amount:  "127,50",
+		Type:    "Venda afiliado",
+		Date:    "16/01/2022 14:13:54"}
+
+	expected[int64(3)] = TransactionDBOutputDTO{
+		ID:      int64(3),
+		Seller:  "JOSE CARLOS",
+		Product: "CURSO DE BEM-ESTAR",
+		Amount:  "-45,00",
+		Type:    "Comissão paga",
+		Date:    "16/01/2022 14:13:54"}
+
+	expected[int64(4)] = TransactionDBOutputDTO{
+		ID:      int64(4),
+		Seller:  "THIAGO OLIVEIRA",
+		Product: "CURSO DE BEM-ESTAR",
+		Amount:  "45,00",
+		Type:    "Comissão recebida",
+		Date:    "16/01/2022 14:13:54"}
+
+	transactions, err := tdb.ListTransactions()
+
+	assert.Nil(t, err)
+	assert.Equal(t, 4, len(transactions))
+	for _, v := range transactions {
+		assert.Equal(t, expected[v.ID].ID, v.ID)
+		assert.Equal(t, expected[v.ID].Amount, v.Amount)
+		assert.Equal(t, expected[v.ID].Date, v.Date)
+		assert.Equal(t, expected[v.ID].Product, v.Product)
+		assert.Equal(t, expected[v.ID].Seller, v.Seller)
+		assert.Equal(t, expected[v.ID].Type, v.Type)
+	}
+
+	tearDown(t)
+}
+
+func prepareDataBase(t *testing.T, db *sql.DB) {
+	//Filling database with sellers,, products and some transactions at first...
+	rs, err := db.Exec(`INSERT INTO seller(name) VALUES ('JOSE CARLOS');`)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	SellerID1, err := rs.LastInsertId()
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rs, err = db.Exec(`INSERT INTO seller(name) VALUES ('THIAGO OLIVEIRA');`)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	SellerID2, err := rs.LastInsertId()
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rs, err = db.Exec(`INSERT INTO products(name) VALUES ('CURSO DE BEM-ESTAR');`)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ProductID, err := rs.LastInsertId()
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = db.Exec(`
+		INSERT INTO transaction
+			(seller_id, product_id, amount, transaction_type, date)
+		VALUES
+			(?, ?, ?, ?, ?),
+			(?, ?, ?, ?, ?),
+			(?, ?, ?, ?, ?),
+			(?, ?, ?, ?, ?);`,
+		SellerID1, ProductID, 127.50, 1, "2022-01-15 19:20:30",
+		SellerID2, ProductID, 127.50, 2, "2022-01-16 14:13:54",
+		SellerID1, ProductID, -45.0, 3, "2022-01-16 14:13:54",
+		SellerID2, ProductID, 45.0, 4, "2022-01-16 14:13:54")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+}

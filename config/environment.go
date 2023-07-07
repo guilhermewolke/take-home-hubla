@@ -8,6 +8,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// Faz a leitura do arquivo .env na raiz de diretório, e retorna o valor da chave informada via parâmetro
 func getEnvValue(key string) string {
 	dir, err := project_root_directory.GetRootDirectory()
 	if err != nil {

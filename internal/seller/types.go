@@ -12,6 +12,7 @@ type Seller struct {
 	Name string
 }
 
+// Prepara e retorna um objeto do tipo Seller.
 func NewSeller(db *sql.DB, name string) (*Seller, error) {
 	log.Printf("seller.NewSeller - Início do método")
 	sdb := sellerDB.NewSellerDB(db)

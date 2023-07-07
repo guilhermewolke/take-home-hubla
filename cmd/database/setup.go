@@ -4,6 +4,7 @@ import (
 	"database/sql"
 )
 
+// Limpa as tabelas do banco de dados
 func TearDown(db *sql.DB) error {
 	defer db.Close()
 
